@@ -4,7 +4,7 @@ const {
   login,
   logout,
   sendMessage,
-  eventEmitter,
+  event,
 } = require("../controllers/apiController");
 
 const apiRoute = express.Router();
@@ -12,6 +12,6 @@ const apiRoute = express.Router();
 apiRoute.post("/login", login);
 apiRoute.post("/logout", logout);
 apiRoute.post("/message", sendMessage);
-apiRoute.get("/event", eventEmitter);
+apiRoute.get("/event", event);
 
 module.exports = apiRoute;
