@@ -2,27 +2,38 @@ import axios from "axios";
 import { useCallback, useContext, useEffect, useState } from "react";
 
 import { authContext, useAuth } from "./AuthContext";
-import { MESSAGE_SENT } from "./events";
 
 function ChatRoom() {
   const [messages, setMessages] = useState([]);
   const [messageValue, setMessageValue] = useState("");
-  const { username } = useContext(authContext);
-  useAuth();
+  const { username, logout } = useContext(authContext);
+  const loggedIn = useAuth();
 
   const longPolling = useCallback(() => {
     (async () => {
+      if (!loggedIn) return;
       try {
-        const response = await axios.get("/api/event", { timeout: 30000 });
+        const response = await axios.get("/api/event", {
+          headers: { username: username },
+          timeout: 30000,
+        });
         const { type, content } = response.data;
-        if (type === MESSAGE_SENT)
-          setMessages((messages) => [...messages, content]);
+        switch (type) {
+          case "message_sent":
+            setMessages((messages) => [...messages, content]);
+            break;
+          case "user_joined":
+            alert(`${content.username} Joined the chat!`);
+            break;
+          default:
+            break;
+        }
       } catch (error) {
         if (!error.isAxiosError) console.error(error);
       }
       longPolling();
     })();
-  }, []);
+  }, [loggedIn, username]);
 
   useEffect(() => {
     //First "saved massages" fetch
@@ -31,6 +42,7 @@ function ChatRoom() {
       setMessages(response.data);
     })();
     longPolling();
+    return logout;
   }, [longPolling]);
 
   const sendMessage = useCallback(() => {

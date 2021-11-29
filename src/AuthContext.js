@@ -37,4 +37,5 @@ export const useAuth = () => {
   useEffect(() => {
     if (!loggedIn) navigate("/login");
   }, [loggedIn, navigate]);
+  return loggedIn;
 };
