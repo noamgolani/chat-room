@@ -19,13 +19,7 @@ module.exports.logout = async (req, res, next) => {
 //TODO move into a messages route
 const eventEmitter = new event.EventEmitter();
 //TODO move into model
-const messages = [
-  { from: "noam", message: "Hello" },
-  { from: "amir", message: "Hay" },
-  { from: "noam", message: "Hello Hay" },
-  { from: "tsahi", message: "Hay Hay Hey" },
-  { from: "amir", message: "Hello world" },
-];
+const messages = [];
 
 module.exports.sendMessage = async (req, res, next) => {
   try {
