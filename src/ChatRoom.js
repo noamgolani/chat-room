@@ -8,7 +8,6 @@ function ChatRoom() {
   const [messages, setMessages] = useState([]);
   const [messageValue, setMessageValue] = useState("");
   const { username } = useContext(authContext);
-
   useAuth();
 
   const longPolling = useCallback(() => {
