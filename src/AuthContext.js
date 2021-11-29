@@ -1,23 +1,31 @@
 import axios from "axios";
-import React from "react";
+import React, { useCallback, useState } from "react";
 
-const defaultValue = {
-  user: null,
-  async login(username) {
-    await axios.post("/api/login", { username });
-    this.user = { username };
-  },
-  async logout() {
+export const authContext = React.createContext({});
+
+export const AuthProvider = ({ children }) => {
+  const [username, setUsername] = useState(null);
+  const [loggedIn, setLoggedIn] = useState(false);
+
+  const login = useCallback(async (name) => {
+    await axios.post("/api/login", { username: name });
+    setUsername(name);
+    setLoggedIn(true);
+  }, []);
+
+  const logout = useCallback(async () => {
     await axios.post("/api/logout", this.user);
-    this.user = null;
-  },
+    setUsername(null);
+    setLoggedIn(false);
+  }, []);
+
+  return (
+    <authContext.Provider value={{ loggedIn, username, login, logout }}>
+      {children}
+    </authContext.Provider>
+  );
 };
 
-export const authContext = React.createContext(defaultValue);
-
-export const AuthProvider = ({ children }) => (
-  <authContext.Provider value={defaultValue}> {children} </authContext.Provider>
-);
 export const Auth = ({ children }) => (
   <authContext.Consumer> {{ children }}</authContext.Consumer>
 );

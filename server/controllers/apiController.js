@@ -2,8 +2,15 @@ const event = require("events");
 const { MESSAGE_SENT } = require("../../src/events");
 
 //TODO move into a auth route
+
+const loggedInUsers = [];
 module.exports.login = async (req, res, next) => {
   try {
+    const { username } = req.body;
+    if (!username || loggedInUsers.includes(username))
+      throw { status: 400, message: "Bad username" };
+    loggedInUsers.push(username);
+    res.send("Logged in");
   } catch (err) {
     next(err);
   }

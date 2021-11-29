@@ -8,12 +8,12 @@ import { MESSAGE_SENT } from "./events";
 function ChatRoom() {
   const [messages, setMessages] = useState([]);
   const [messageValue, setMessageValue] = useState("");
-  const { user } = useContext(authContext);
+  const { username, loggedIn } = useContext(authContext);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) navigate("/login");
-  }, [user, navigate]);
+    if (!loggedIn) navigate("/login");
+  }, [loggedIn, navigate]);
 
   const longPolling = useCallback(() => {
     (async () => {
@@ -41,12 +41,12 @@ function ChatRoom() {
   const sendMessage = useCallback(() => {
     (async () => {
       await axios.post("/api/message", {
-        from: "noam",
+        from: username,
         message: messageValue,
       });
       setMessageValue("");
     })();
-  }, [messageValue]);
+  }, [username, messageValue]);
 
   return (
     <div id="ChatRoom">
