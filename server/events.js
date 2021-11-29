@@ -1,1 +1,1 @@
-export const MESSAGE_SENT = "message_sent";
+module.exports.MESSAGE_SENT = "message_sent";
