@@ -1,5 +1,5 @@
 const event = require("events");
-const { MESSAGE_SENT } = require("../events");
+const { MESSAGE_SENT } = require("../../src/events");
 
 //TODO move into a auth route
 module.exports.login = async (req, res, next) => {
@@ -48,7 +48,7 @@ module.exports.getAllMessages = async (req, res, next) => {
 module.exports.event = async (req, res, next) => {
   try {
     eventEmitter.once(MESSAGE_SENT, (from, message) => {
-      res.send({ from, message });
+      res.send({ type: MESSAGE_SENT, content: { from, message } });
     });
   } catch (err) {
     next(err);
