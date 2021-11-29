@@ -1,5 +1,6 @@
 import axios from "axios";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export const authContext = React.createContext({});
 
@@ -29,3 +30,11 @@ export const AuthProvider = ({ children }) => {
 export const Auth = ({ children }) => (
   <authContext.Consumer> {{ children }}</authContext.Consumer>
 );
+
+export const useAuth = () => {
+  const { loggedIn } = useContext(authContext);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!loggedIn) navigate("/login");
+  }, [loggedIn, navigate]);
+};

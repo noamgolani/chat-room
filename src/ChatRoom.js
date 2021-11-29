@@ -1,19 +1,15 @@
 import axios from "axios";
 import { useCallback, useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 
-import { authContext } from "./AuthContext";
+import { authContext, useAuth } from "./AuthContext";
 import { MESSAGE_SENT } from "./events";
 
 function ChatRoom() {
   const [messages, setMessages] = useState([]);
   const [messageValue, setMessageValue] = useState("");
-  const { username, loggedIn } = useContext(authContext);
-  const navigate = useNavigate();
+  const { username } = useContext(authContext);
 
-  useEffect(() => {
-    if (!loggedIn) navigate("/login");
-  }, [loggedIn, navigate]);
+  useAuth();
 
   const longPolling = useCallback(() => {
     (async () => {
