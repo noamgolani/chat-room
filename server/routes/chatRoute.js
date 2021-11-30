@@ -9,3 +9,5 @@ const chatRoute = express.Router();
 
 chatRoute.post("/message", sendMessage);
 chatRoute.get("/message", getAllMessages);
+
+module.exports = chatRoute;

@@ -1,11 +1,11 @@
-const { eventEmitter, MESSAGE_SENT } = require("./eventsController");
+const { sendEventToAll, MESSAGE_SENT } = require("./eventsController");
 
 const messages = [];
 
 module.exports.sendMessage = async (req, res, next) => {
   try {
     const { from, message } = req.body;
-    eventEmitter.emit(MESSAGE_SENT, from, message);
+    sendEventToAll(MESSAGE_SENT, { from, message });
     res.status(200).send("Message Sent");
   } catch (err) {
     next(err);

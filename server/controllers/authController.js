@@ -1,5 +1,3 @@
-const { eventEmitter, USER_JOINED } = require("./eventsController");
-
 module.exports.loggedInUsers = [];
 
 module.exports.login = async (req, res, next) => {
@@ -9,9 +7,7 @@ module.exports.login = async (req, res, next) => {
       throw { status: 400, message: "Bad username" };
     this.loggedInUsers.push(username);
 
-    eventEmitter.emit(USER_JOINED, username);
-
-    res.send("Logged in");
+    res.cookie("Auth", username).send("Logged in");
   } catch (err) {
     next(err);
   }
