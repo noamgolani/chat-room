@@ -1,10 +1,16 @@
-module.exports.auth = (req, res, next) => {
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET = process.env;
+
+module.exports.auth = async (req, res, next) => {
   try {
-    const token = req.cookies.Auth || "noam";
+    const token = req.cookies.Auth;
+
     if (!token) throw { status: 403, message: "Auth error" };
-    req.user = { username: token };
-    next();
+    const { username, userId } = await jwt.verify(token, JWT_SECRET);
+    req.user = { username, userId };
   } catch (error) {
+    //TODO add check if jwt error
     next(error);
   }
 };

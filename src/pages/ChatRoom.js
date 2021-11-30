@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useCallback, useContext, useEffect, useState } from "react";
 
-import { authContext, useAuth } from "./AuthContext";
+import { authContext, useAuth } from "../AuthContext";
 
 function ChatRoom() {
   const [messages] = useState([]);
