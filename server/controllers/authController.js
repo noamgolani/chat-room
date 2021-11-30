@@ -1,8 +1,10 @@
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 
 const User = require('../models/User');
+const Token = require('../models/Token');
 
-const saltRounds = process.env.SALT_ROUNDS;
+const {SALT_ROUNDS, JWT_SECRET, ACCESS_TIME, REFRESH_TIME} = process.env;
 
 module.exports.register = async (req, res, next) => {
   try {
@@ -15,7 +17,7 @@ module.exports.register = async (req, res, next) => {
     await User.create({
       username,
       email,
-      password: await bcrypt.hash(password, saltRounds),
+      password: await bcrypt.hash(password, SALT_ROUNDS),
     });
 
     res.send('Registered');
@@ -26,14 +28,53 @@ module.exports.register = async (req, res, next) => {
 
 module.exports.login = async (req, res, next) => {
   try {
-	  const { username, password } = req.validated;
+    const {username, password} = req.validated;
 
-	  const user = await User.findOne({username});
+    const user = await User.findOne({username});
 
-	  if(!user) throw {status: 400, message: "No such username"};
-	  if(!bcrypt.compare(password, user.password)) throw { status: 400, message: "Bad password"}
+    if (!user) throw {status: 400, message: 'No such username'};
+    if (!bcrypt.compare(password, user.password))
+      throw {status: 400, message: 'Bad password'};
 
+    const userId = user._id;
 
+    const accessToken = jwt.sign({username, userId}, JWT_SECRET, {
+      expiresIn: ACCESS_TIME,
+    });
+
+    const refreshToken = jwt.sign({userId, username}, JWT_SECRET, {
+      expiresIn: REFRESH_TIME,
+    });
+
+    await Token.create({jwt: refreshToken});
+
+    res.cookie('Auth', accessToken);
+    res.send({refreshToken});
+  } catch (err) {
+    next(err);
+  }
+};
+
+module.exports.token = async (req, res, next) => {
+  try {
+    const {token} = req.body;
+
+    if (!token) throw {status: 400, message: 'Must provide a token'};
+
+    try {
+      const {username, userId} = await jwt.verify(token, JWT_SECRET);
+    } catch (err) {
+      throw {status: 400, message: 'Bad token'};
+    }
+    const exists = await Token.findOne({jwt: token});
+    if (!exists) throw {status: 400, message: 'Log in again'};
+
+    const accessToken = jwt.sign({username, userId}, JWT_SECRET, {
+      expiresIn: ACCESS_TIME,
+    });
+
+    res.cookie('Auth', accessToken);
+    res.end();
   } catch (err) {
     next(err);
   }
