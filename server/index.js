@@ -1,13 +1,18 @@
 const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
+
 const apiRoute = require("./routes/apiRoute");
 
 const app = express();
 
-app.use(cookieParser());
+app.use(cors());
 app.use(express.json());
-app.use(morgan("dev"));
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+
+app.use(morgan("tiny"));
 
 app.use("/api", apiRoute);
 

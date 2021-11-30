@@ -11,8 +11,9 @@ const SSE_HEADERS = {
 let usersConnections = [];
 
 module.exports.sendEventToAll = (type, content) => {
-  usersConnections.forEach(({ response }) => {
-    response.write(`event: ${type}`);
+  usersConnections.forEach(({ username, response }) => {
+    console.log(`Sending to: ${username}`);
+    response.write(`event: ${type}\n`);
     response.write(`data: ${JSON.stringify(content)}`);
     response.write("\n\n");
   });
@@ -20,21 +21,25 @@ module.exports.sendEventToAll = (type, content) => {
 
 module.exports.eventsHandler = async (req, res, next) => {
   try {
-    const { username } = req.headers;
+    const { username } = req.user;
     // if (
     //   !username ||
     //   usersConnections.find((user) => user.username === username)
     // )
     //   throw { status: 400, messages: "Dont try funny business" };
-
     res.writeHead(200, SSE_HEADERS);
 
+    console.log(`User: ${username} started listening to Events`);
+
     usersConnections.push({ username, response: res });
+
+    res.write("data: hello\n\n");
 
     req.on("close", () => {
       usersConnections = usersConnections.filter(
         (user) => user.username !== username
       );
+      console.log(`User: ${username} stoped listening to Events`);
     });
   } catch (err) {
     next(err);
