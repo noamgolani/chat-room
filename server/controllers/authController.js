@@ -70,7 +70,7 @@ module.exports.token = async (req, res, next) => {
     });
 
     res.cookie("Auth", accessToken);
-    res.end();
+    res.send({ username, userId });
   } catch (err) {
     next(err);
   }

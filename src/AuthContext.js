@@ -12,14 +12,15 @@ export const AuthProvider = ({ children }) => {
   );
 
   const askForNewToken = useCallback(async (refreshToken) => {
-    await axios.post("/api/auth/token", { token: refreshToken });
+    return await axios.post("/api/auth/token", { token: refreshToken });
   }, []);
 
   useEffect(() => {
     (async () => {
       if (refreshToken && !loggedIn) {
         try {
-          await askForNewToken(refreshToken);
+          const { data } = await askForNewToken(refreshToken);
+          setUsername(data.username);
           setLoggedIn(true);
           localStorage.setItem("refresh", refreshToken);
         } catch (error) {

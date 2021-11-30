@@ -42,12 +42,11 @@ function ChatRoom() {
   const sendMessage = useCallback(() => {
     (async () => {
       await axios.post("/api/chat/message", {
-        from: username,
         message: messageValue,
       });
       setMessageValue("");
     })();
-  }, [username, messageValue]);
+  }, [messageValue]);
 
   return (
     <div id="ChatRoom">
@@ -68,7 +67,14 @@ function ChatRoom() {
             setMessageValue(value);
           }}
         ></input>
-        <button onClick={sendMessage}> Send </button>
+        <button
+          onClick={() => {
+            console.log("asd");
+            sendMessage();
+          }}
+        >
+          Send
+        </button>
       </div>
     </div>
   );
