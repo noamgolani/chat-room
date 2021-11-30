@@ -1,26 +1,39 @@
-module.exports.loggedInUsers = [];
+const bcrypt = require('bcrypt');
+
+const User = require('../models/User');
+
+const saltRounds = process.env.SALT_ROUNDS;
 
 module.exports.register = async (req, res, next) => {
   try {
-    const { username,} = req.body;
-    if (!username || this.loggedInUsers.includes(username))
-      throw { status: 400, message: "Bad username" };
-    this.loggedInUsers.push(username);
+    const {username, email, password} = req.validated;
+    const exists = await User.find({$or: [{email}, {username}]});
 
-    res.cookie("Auth", username).send("Logged in");
+    if (exists.length > 0)
+      throw {status: 400, message: 'username on email already exists'};
+
+    await User.create({
+      username,
+      email,
+      password: await bcrypt.hash(password, saltRounds),
+    });
+
+    res.send('Registered');
   } catch (err) {
     next(err);
   }
-}
+};
 
 module.exports.login = async (req, res, next) => {
   try {
-    const { username } = req.body;
-    if (!username || this.loggedInUsers.includes(username))
-      throw { status: 400, message: "Bad username" };
-    this.loggedInUsers.push(username);
+	  const { username, password } = req.validated;
 
-    res.cookie("Auth", username).send("Logged in");
+	  const user = await User.findOne({username});
+
+	  if(!user) throw {status: 400, message: "No such username"};
+	  if(!bcrypt.compare(password, user.password)) throw { status: 400, message: "Bad password"}
+
+
   } catch (err) {
     next(err);
   }
