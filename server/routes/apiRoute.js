@@ -1,19 +1,13 @@
 const express = require("express");
 
-const {
-  login,
-  logout,
-  sendMessage,
-  event,
-  getAllMessages,
-} = require("../controllers/apiController");
+const chatRoute = require("./chatRoute");
+const authRoute = require("./authRouth");
+const { eventRoute } = require("../controllers/eventsController");
 
 const apiRoute = express.Router();
 
-apiRoute.post("/login", login);
-apiRoute.post("/logout", logout);
-apiRoute.post("/message", sendMessage);
-apiRoute.get("/message", getAllMessages);
-apiRoute.get("/event", event);
+apiRoute.use("/auth", authRoute);
+apiRoute.use("/chat", chatRoute);
+apiRoute.get("/events", eventRoute);
 
 module.exports = apiRoute;
