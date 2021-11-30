@@ -1,0 +1,9 @@
+.basic-form {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  gap: 1rem;
+
+  .form-span-2 {
+    grid-column: span 2;
+  }
+}

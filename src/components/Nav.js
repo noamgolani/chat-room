@@ -7,11 +7,24 @@ export default function Nav() {
 
   return (
     <div id="Nav">
-      {loggedIn ? (
-        <span>Hello {username}</span>
-      ) : (
-        <Link to="/login">Login</Link>
-      )}
+      <ul className="nav-bar">
+        {loggedIn ? (
+          <li className="nav-item">Hello {username}</li>
+        ) : (
+          <>
+            <li className="nav-item">
+              <Link to="/login" className="btn">
+                Login
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/register" className="btn">
+                Register
+              </Link>
+            </li>
+          </>
+        )}
+      </ul>
     </div>
   );
 }

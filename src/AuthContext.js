@@ -8,10 +8,15 @@ export const AuthProvider = ({ children }) => {
   const [username, setUsername] = useState(null);
   const [loggedIn, setLoggedIn] = useState(false);
 
-  const login = useCallback(async (name) => {
-    await axios.post("/api/auth/login", { username: name });
-    setUsername(name);
-    setLoggedIn(true);
+  const login = useCallback(async ({ username, password }) => {
+    try {
+      await axios.post("/api/auth/login", { username, password });
+      setUsername(username);
+      setLoggedIn(true);
+    } catch (error) {
+      if (error.isAxiosError) console.log(error.response.data.error);
+      else console.log(error);
+    }
   }, []);
 
   const logout = useCallback(async () => {
