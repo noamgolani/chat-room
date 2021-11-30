@@ -2,6 +2,10 @@ const express = require("express");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const dotenv= require("dotenv");
+const mongoose = require("mongoose");
+
+dotenv.config();
 
 const apiRoute = require("./routes/apiRoute");
 

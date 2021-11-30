@@ -6,6 +6,7 @@ const SSE_HEADERS = {
   "Content-Type": "text/event-stream",
   Connection: "keep-alive",
   "Cache-Control": "no-cache",
+  connection: "open",
 };
 
 let usersConnections = [];
@@ -13,9 +14,11 @@ let usersConnections = [];
 module.exports.sendEventToAll = (type, content) => {
   usersConnections.forEach(({ username, response }) => {
     console.log(`Sending to: ${username}`);
-    response.write(`event: ${type}\n`);
-    response.write(`data: ${JSON.stringify(content)}`);
-    response.write("\n\n");
+
+    let messageStr = `event: ${type}\n`;
+    messageStr += `data: ${JSON.stringify(content)}\n`;
+    console.log(messageStr);
+    response.write(messageStr);
   });
 };
 
@@ -29,7 +32,7 @@ module.exports.eventsHandler = async (req, res, next) => {
 
     usersConnections.push({ username, response: res });
 
-    res.write("data: connected\n\n");
+    res.write("data: connected\nid: 10\n\n");
 
     req.on("close", () => {
       usersConnections = usersConnections.filter(

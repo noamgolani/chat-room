@@ -4,7 +4,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { authContext, useAuth } from "./AuthContext";
 
 function ChatRoom() {
-  const [messages, setMessages] = useState([]);
+  const [messages] = useState([]);
   const [messageValue, setMessageValue] = useState("");
   const { username } = useContext(authContext);
   const loggedIn = useAuth();
@@ -15,11 +15,15 @@ function ChatRoom() {
     if (!listening && loggedIn) {
       const events = new EventSource("/api/events");
 
+      events.addEventListener("message_sent", (e) => {
+        console.log(e);
+      });
       events.onopen = () => {
         console.log("SSE connected");
       };
 
       events.onmessage = (event) => {
+        console.log(event);
         const parsedData = JSON.parse(event.data);
         console.log(parsedData);
       };
@@ -28,12 +32,12 @@ function ChatRoom() {
     }
   }, [listening, loggedIn]);
 
-  useEffect(() => {
-    (async () => {
-      const response = await axios.get("/api/chat/message");
-      setMessages(response.data);
-    })();
-  }, []);
+  // useEffect(() => {
+  //   (async () => {
+  //     const response = await axios.get("/api/chat/message");
+  //     setMessages(response.data);
+  //   })();
+  // }, []);
 
   const sendMessage = useCallback(() => {
     (async () => {
