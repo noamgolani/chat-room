@@ -6,7 +6,7 @@ import { authContext, useAuth } from "./AuthContext";
 function ChatRoom() {
   const [messages, setMessages] = useState([]);
   const [messageValue, setMessageValue] = useState("");
-  const { username, logout } = useContext(authContext);
+  const { username } = useContext(authContext);
   const loggedIn = useAuth();
 
   const [listening, setListening] = useState(false);
@@ -14,6 +14,10 @@ function ChatRoom() {
   useEffect(() => {
     if (!listening && loggedIn) {
       const events = new EventSource("/api/events");
+
+      events.onopen = () => {
+        console.log("SSE connected");
+      };
 
       events.onmessage = (event) => {
         const parsedData = JSON.parse(event.data);

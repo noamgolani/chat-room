@@ -22,18 +22,14 @@ module.exports.sendEventToAll = (type, content) => {
 module.exports.eventsHandler = async (req, res, next) => {
   try {
     const { username } = req.user;
-    // if (
-    //   !username ||
-    //   usersConnections.find((user) => user.username === username)
-    // )
-    //   throw { status: 400, messages: "Dont try funny business" };
+
     res.writeHead(200, SSE_HEADERS);
 
     console.log(`User: ${username} started listening to Events`);
 
     usersConnections.push({ username, response: res });
 
-    res.write("data: hello\n\n");
+    res.write("data: connected\n\n");
 
     req.on("close", () => {
       usersConnections = usersConnections.filter(
