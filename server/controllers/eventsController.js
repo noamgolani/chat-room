@@ -2,13 +2,6 @@ module.exports.MESSAGE_SENT = "message_sent";
 module.exports.USER_JOINED = "user_joined";
 module.exports.USER_LEFT = "user_left";
 
-const SSE_HEADERS = {
-  "Content-Type": "text/event-stream",
-  Connection: "keep-alive",
-  "Cache-Control": "no-cache",
-  connection: "open",
-};
-
 let usersConnections = [];
 
 module.exports.sendEventToAll = (type, content) => {
@@ -16,31 +9,26 @@ module.exports.sendEventToAll = (type, content) => {
     console.log(`Sending to: ${username}`);
 
     let messageStr = `event: ${type}\n`;
-    messageStr += `data: ${JSON.stringify(content)}\n`;
-    console.log(messageStr);
+    messageStr += `data: ${JSON.stringify(content)}\n\n`;
+    console.log(messageStr, username);
     response.write(messageStr);
   });
 };
 
-module.exports.eventsHandler = async (req, res, next) => {
-  try {
-    const { username } = req.user;
+module.exports.eventsHandler = (req, res, next) => {
+  const { username } = req.user;
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  res.setHeader("Access-Control-Allow-Origin", "*");
 
-    res.writeHead(200, SSE_HEADERS);
+  console.log(`User: ${username} started listening to Events`);
 
-    console.log(`User: ${username} started listening to Events`);
+  usersConnections.push({ username, response: res });
 
-    usersConnections.push({ username, response: res });
-
-    res.write("data: connected\nid: 10\n\n");
-
-    req.on("close", () => {
-      usersConnections = usersConnections.filter(
-        (user) => user.username !== username
-      );
-      console.log(`User: ${username} stoped listening to Events`);
-    });
-  } catch (err) {
-    next(err);
-  }
+  req.on("close", () => {
+    usersConnections = usersConnections.filter(
+      (user) => user.username !== username
+    );
+    console.log(`User: ${username} stoped listening to Events`);
+  });
 };

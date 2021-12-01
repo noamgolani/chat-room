@@ -48,8 +48,7 @@ module.exports.login = async (req, res, next) => {
 
     await Token.create({ jwt: refreshToken });
 
-    res.cookie("Auth", accessToken);
-    res.send({ refreshToken });
+    res.send({ accessToken, refreshToken });
   } catch (err) {
     next(err);
   }
@@ -69,8 +68,7 @@ module.exports.token = async (req, res, next) => {
       expiresIn: ACCESS_TIME,
     });
 
-    res.cookie("Auth", accessToken);
-    res.send({ username, userId });
+    res.send({ accessToken, username, userId });
   } catch (err) {
     next(err);
   }

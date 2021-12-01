@@ -1,31 +1,42 @@
 import axios from "axios";
 import { useCallback, useContext, useEffect, useState } from "react";
+import { BASE_URL } from "..";
+import { EventSourcePolyfill } from "event-source-polyfill";
 
 import { authContext, useAuth } from "../AuthContext";
 
 function ChatRoom() {
   const [messages] = useState([]);
   const [messageValue, setMessageValue] = useState("");
-  const { username } = useContext(authContext);
+  const { accessToken } = useContext(authContext);
   const loggedIn = useAuth();
 
   const [listening, setListening] = useState(false);
 
   useEffect(() => {
     if (!listening && loggedIn) {
-      const events = new EventSource("/api/events");
+      console.log(accessToken);
+      const events = new EventSourcePolyfill(`${BASE_URL}/api/events`, {
+        headers: {
+          Auth: accessToken,
+        },
+      });
 
       events.addEventListener("message_sent", (e) => {
         console.log(e);
       });
-      events.onopen = () => {
+
+      events.onopen = (e) => {
+        console.log(e);
         console.log("SSE connected");
       };
 
+      events.onerror = console.log;
+
       events.onmessage = (event) => {
-        console.log(event);
-        const parsedData = JSON.parse(event.data);
-        console.log(parsedData);
+        console.log(event.data);
+        //const parsedData = JSON.parse(event.data);
+        //console.log(parsedData);
       };
 
       setListening(true);
@@ -41,12 +52,20 @@ function ChatRoom() {
 
   const sendMessage = useCallback(() => {
     (async () => {
-      await axios.post("/api/chat/message", {
-        message: messageValue,
-      });
+      await axios.post(
+        `${BASE_URL}/api/chat/message`,
+        {
+          message: messageValue,
+        },
+        {
+          headers: {
+            Auth: accessToken,
+          },
+        }
+      );
       setMessageValue("");
     })();
-  }, [messageValue]);
+  }, [messageValue, accessToken]);
 
   return (
     <div id="ChatRoom">
@@ -67,14 +86,7 @@ function ChatRoom() {
             setMessageValue(value);
           }}
         ></input>
-        <button
-          onClick={() => {
-            console.log("asd");
-            sendMessage();
-          }}
-        >
-          Send
-        </button>
+        <button onClick={sendMessage}>Send</button>
       </div>
     </div>
   );

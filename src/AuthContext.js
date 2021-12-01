@@ -2,6 +2,8 @@ import axios from "axios";
 import React, { useCallback, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { BASE_URL } from "./index";
+
 export const authContext = React.createContext({});
 
 export const AuthProvider = ({ children }) => {
@@ -10,9 +12,14 @@ export const AuthProvider = ({ children }) => {
   const [refreshToken, setRefreshToken] = useState(
     localStorage.getItem("refresh")
   );
+  const [accessToken, setAccessToken] = useState(
+    localStorage.getItem("access")
+  );
 
   const askForNewToken = useCallback(async (refreshToken) => {
-    return await axios.post("/api/auth/token", { token: refreshToken });
+    return await axios.post(`${BASE_URL}/api/auth/token`, {
+      token: refreshToken,
+    });
   }, []);
 
   useEffect(() => {
@@ -20,9 +27,10 @@ export const AuthProvider = ({ children }) => {
       if (refreshToken && !loggedIn) {
         try {
           const { data } = await askForNewToken(refreshToken);
+          setAccessToken(data.accessToken);
+          localStorage.setItem("access", data.accessToken);
           setUsername(data.username);
           setLoggedIn(true);
-          localStorage.setItem("refresh", refreshToken);
         } catch (error) {
           console.log(error);
           setRefreshToken(null);
@@ -33,12 +41,17 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(async ({ username, password }) => {
     try {
-      const refresh = await axios.post("/api/auth/login", {
-        username,
-        password,
-      });
-      setRefreshToken(refresh.data.refreshToken);
-      localStorage.setItem("refresh", refresh.data.refreshToken);
+      const { refreshToken, accessToken } = await axios.post(
+        `${BASE_URL}/api/auth/login`,
+        {
+          username,
+          password,
+        }
+      );
+      setRefreshToken(refreshToken);
+      setAccessToken(accessToken);
+      localStorage.setItem("refresh", refreshToken);
+      localStorage.setItem("access", accessToken);
       setUsername(username);
       setLoggedIn(true);
     } catch (error) {
@@ -49,7 +62,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = useCallback(async ({ username, password, email }) => {
     try {
-      await axios.post("/api/auth/register", {
+      await axios.post(`${BASE_URL}/api/auth/register`, {
         username,
         password,
         email,
@@ -64,14 +77,14 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const logout = useCallback(async () => {
-    await axios.post("/api/auth/logout", this.user);
+    await axios.post(`${BASE_URL}/api/auth/logout`, this.user);
     setUsername(null);
     setLoggedIn(false);
   }, []);
 
   return (
     <authContext.Provider
-      value={{ loggedIn, username, login, logout, register }}
+      value={{ loggedIn, username, accessToken, login, logout, register }}
     >
       {children}
     </authContext.Provider>

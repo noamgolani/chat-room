@@ -4,7 +4,7 @@ const { JWT_SECRET } = process.env;
 
 module.exports.auth = async (req, res, next) => {
   try {
-    const token = req.cookies.Auth;
+    const token = req.headers.auth;
 
     if (!token) throw { status: 403, message: "Auth error" };
     const { username, userId } = await jwt.verify(token, JWT_SECRET);
