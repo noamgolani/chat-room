@@ -46,7 +46,11 @@ module.exports.login = async (req, res, next) => {
       expiresIn: REFRESH_TIME,
     });
 
-    await Token.create({ jwt: refreshToken });
+    await Token.findOneAndUpdate(
+      { userId },
+      { jwt: refreshToken, userId },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
     res.send({ accessToken, refreshToken });
   } catch (err) {
@@ -76,6 +80,9 @@ module.exports.token = async (req, res, next) => {
 
 module.exports.logout = async (req, res, next) => {
   try {
+    const { userId } = req.user;
+    await Token.deleteOne({ userId });
+    res.send(200);
   } catch (err) {
     next(err);
   }

@@ -33,6 +33,12 @@ app.use("/api", apiRoute);
 
 // Error handler
 app.use((err, req, res, next) => {
+  if (err.name === "JsonWebTokenError") {
+    err = {
+      status: 403,
+      message: "Not auth",
+    };
+  }
   if (err.status) {
     res.status(err.status);
     res.send({ error: err.message });

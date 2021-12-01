@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 
 const tokenSchema = new mongoose.Schema({
   jwt: String,
+  userId: mongoose.Types.ObjectId,
 });
 
 tokenSchema.options.toJSON = {
@@ -13,4 +14,4 @@ tokenSchema.options.toJSON = {
   },
 };
 
-module.exports = mongoose.model('Token', tokenSchema);
+module.exports = mongoose.model("Token", tokenSchema);

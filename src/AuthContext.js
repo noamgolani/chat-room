@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     (async () => {
-      if (refreshToken && !loggedIn) {
+      if (refreshToken && refreshToken !== "undefined" && !loggedIn) {
         try {
           const { data } = await askForNewToken(refreshToken);
           setAccessToken(data.accessToken);
@@ -41,17 +41,14 @@ export const AuthProvider = ({ children }) => {
 
   const login = useCallback(async ({ username, password }) => {
     try {
-      const { refreshToken, accessToken } = await axios.post(
-        `${BASE_URL}/api/auth/login`,
-        {
-          username,
-          password,
-        }
-      );
-      setRefreshToken(refreshToken);
-      setAccessToken(accessToken);
-      localStorage.setItem("refresh", refreshToken);
-      localStorage.setItem("access", accessToken);
+      const { data } = await axios.post(`${BASE_URL}/api/auth/login`, {
+        username,
+        password,
+      });
+      setRefreshToken(data.refreshToken);
+      setAccessToken(data.accessToken);
+      localStorage.setItem("refresh", data.refreshToken);
+      localStorage.setItem("access", data.accessToken);
       setUsername(username);
       setLoggedIn(true);
     } catch (error) {
@@ -71,16 +68,26 @@ export const AuthProvider = ({ children }) => {
       if (error.isAxiosError) throw error.response.data.error;
       else {
         console.log(error);
-        throw "Somthing went bad";
+        throw "Something went bad";
       }
     }
   }, []);
 
   const logout = useCallback(async () => {
-    await axios.post(`${BASE_URL}/api/auth/logout`, this.user);
+    await axios.post(
+      `${BASE_URL}/api/auth/logout`,
+      {},
+      {
+        headers: {
+          Auth: accessToken,
+        },
+      }
+    );
     setUsername(null);
     setLoggedIn(false);
-  }, []);
+    localStorage.removeItem("refresh");
+    localStorage.removeItem("access");
+  }, [accessToken]);
 
   return (
     <authContext.Provider
