@@ -6,7 +6,7 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 import { authContext, useAuth } from "../AuthContext";
 
 function ChatRoom() {
-  const [messages] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [messageValue, setMessageValue] = useState("");
   const { accessToken } = useContext(authContext);
   const loggedIn = useAuth();
@@ -15,15 +15,15 @@ function ChatRoom() {
 
   useEffect(() => {
     if (!listening && loggedIn) {
-      console.log(accessToken);
       const events = new EventSourcePolyfill(`${BASE_URL}/api/events`, {
         headers: {
           Auth: accessToken,
         },
       });
 
-      events.addEventListener("message_sent", (e) => {
-        console.log(e);
+      events.addEventListener("message_sent", ({ data }) => {
+        const parsedData = JSON.parse(data);
+        setMessages((m) => [...m, parsedData]);
       });
 
       events.onopen = (e) => {
@@ -32,16 +32,9 @@ function ChatRoom() {
       };
 
       events.onerror = console.log;
-
-      events.onmessage = (event) => {
-        console.log(event.data);
-        //const parsedData = JSON.parse(event.data);
-        //console.log(parsedData);
-      };
-
       setListening(true);
     }
-  }, [listening, loggedIn]);
+  }, [listening, loggedIn, accessToken]);
 
   // useEffect(() => {
   //   (async () => {

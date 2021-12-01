@@ -6,11 +6,8 @@ let usersConnections = [];
 
 module.exports.sendEventToAll = (type, content) => {
   usersConnections.forEach(({ username, response }) => {
-    console.log(`Sending to: ${username}`);
-
     let messageStr = `event: ${type}\n`;
     messageStr += `data: ${JSON.stringify(content)}\n\n`;
-    console.log(messageStr, username);
     response.write(messageStr);
   });
 };
@@ -24,6 +21,8 @@ module.exports.eventsHandler = (req, res, next) => {
   console.log(`User: ${username} started listening to Events`);
 
   usersConnections.push({ username, response: res });
+
+  res.write("data: connected\n\n");
 
   req.on("close", () => {
     usersConnections = usersConnections.filter(
