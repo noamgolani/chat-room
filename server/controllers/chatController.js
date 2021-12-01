@@ -5,7 +5,11 @@ const messages = [];
 module.exports.sendMessage = async (req, res, next) => {
   try {
     const { message } = req.body;
-    sendEventToAll(MESSAGE_SENT, { from: req.user.username, message });
+    sendEventToAll(MESSAGE_SENT, {
+      from: req.user.username,
+      message,
+      timestamp: Date.now(),
+    });
     res.status(200).send("Message Sent");
   } catch (err) {
     next(err);

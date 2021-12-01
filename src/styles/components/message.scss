@@ -1,0 +1,31 @@
+.message-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+
+  width: 100%;
+  overflow-y: scroll;
+  height: 80vh;
+}
+
+.message {
+  border: 1px solid black;
+  padding-left: 0.5rem;
+
+  h2 {
+    display: inline;
+    font-size: 1.2rem;
+  }
+
+  p {
+    display: inline;
+  }
+
+  span {
+    color: grey;
+    padding: 0.2rem;
+    display: block;
+    right: 0px;
+    bottom: 0px;
+  }
+}

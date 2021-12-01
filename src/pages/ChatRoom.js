@@ -1,47 +1,24 @@
-import axios from "axios";
 import { useCallback, useContext, useEffect, useState } from "react";
-import { BASE_URL } from "..";
-import { EventSourcePolyfill } from "event-source-polyfill";
+import axios from "axios";
+import moment from "moment";
 
-import { authContext, useAuth } from "../AuthContext";
+import { authContext } from "../AuthContext";
+import { eventsContext, MESSAGE_SENT } from "../EventsContext";
+
+import { BASE_URL } from "..";
 
 function ChatRoom() {
   const [messages, setMessages] = useState([]);
   const [messageValue, setMessageValue] = useState("");
   const { accessToken } = useContext(authContext);
-  const loggedIn = useAuth();
-
-  const [listening, setListening] = useState(false);
+  const { connected, addListener } = useContext(eventsContext);
 
   useEffect(() => {
-    if (!listening && loggedIn) {
-      const events = new EventSourcePolyfill(`${BASE_URL}/api/events`, {
-        headers: {
-          Auth: accessToken,
-        },
-      });
-
-      events.addEventListener("message_sent", ({ data }) => {
-        const parsedData = JSON.parse(data);
-        setMessages((m) => [...m, parsedData]);
-      });
-
-      events.onopen = (e) => {
-        console.log(e);
-        console.log("SSE connected");
-      };
-
-      events.onerror = console.log;
-      setListening(true);
-    }
-  }, [listening, loggedIn, accessToken]);
-
-  // useEffect(() => {
-  //   (async () => {
-  //     const response = await axios.get("/api/chat/message");
-  //     setMessages(response.data);
-  //   })();
-  // }, []);
+    if (!connected) return;
+    addListener(MESSAGE_SENT, ({ data }) => {
+      setMessages((messages) => [...messages, JSON.parse(data)]);
+    });
+  }, [connected, addListener]);
 
   const sendMessage = useCallback(() => {
     (async () => {
@@ -61,12 +38,13 @@ function ChatRoom() {
   }, [messageValue, accessToken]);
 
   return (
-    <div id="ChatRoom">
-      <div className="messages">
-        {messages.map(({ message, from }, index) => (
+    <div id="ChatRoom" className="container">
+      <div className="message-list">
+        {messages.map(({ message, from, timestamp }, index) => (
           <div key={index} className="message">
-            <span>From: {from}</span>
+            <h2> {from} </h2>
             <p>{message}</p>
+            <span>{moment(timestamp).fromNow()}</span>
           </div>
         ))}
       </div>

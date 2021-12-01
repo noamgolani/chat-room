@@ -10,18 +10,21 @@ import Nav from "./components/Nav";
 import ChatRoom from "./pages/ChatRoom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import { EventsProvider } from "./EventsContext";
 
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Nav />
-        <Routes>
-          <Route path="/" element={<ChatRoom />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-        </Routes>
-      </BrowserRouter>
+      <EventsProvider>
+        <BrowserRouter>
+          <Nav />
+          <Routes>
+            <Route path="/" element={<ChatRoom />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Routes>
+        </BrowserRouter>
+      </EventsProvider>
     </AuthProvider>
   );
 }
