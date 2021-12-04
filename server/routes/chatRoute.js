@@ -11,7 +11,7 @@ const chatRoute = express.Router();
 chatRoute.post("/message", sendMessage);
 chatRoute.get("/messages", getAllMessages);
 chatRoute.get("/connected", (req, res) => {
-  return res.send(getAllConnected());
+  return res.send({ connected: getAllConnected() });
 });
 
 module.exports = chatRoute;

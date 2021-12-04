@@ -4,13 +4,15 @@ const messages = [];
 
 module.exports.sendMessage = async (req, res, next) => {
   try {
-    const { username, userId } = req.ser;
+    const { username, userId } = req.user;
     const { message } = req.body;
-    sendEventToAll(userId, MESSAGE_SENT, {
+    const messageContent = {
       from: username,
       message,
       timestamp: Date.now(),
-    });
+    };
+    messages.push(messageContent);
+    sendEventToAll(userId, MESSAGE_SENT, messageContent);
     res.status(200).send("Message Sent");
   } catch (err) {
     next(err);

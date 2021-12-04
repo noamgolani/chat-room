@@ -37,7 +37,10 @@ export const EventsProvider = ({ children }) => {
 
   const addListener = useCallback(
     (eventType, listener) => {
-      if (eventSource) eventSource.addEventListener(eventType, listener);
+      if (eventSource)
+        eventSource.addEventListener(eventType, ({ data }) => {
+          listener(JSON.parse(data));
+        });
     },
     [eventSource]
   );

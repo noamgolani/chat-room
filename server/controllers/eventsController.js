@@ -14,7 +14,7 @@ module.exports.sendEventToAll = (senderId, type, content) => {
 module.exports.sendEventToUser = (userId, type, content) => {
   let messageStr = `event: ${type}\n`;
   messageStr += `data: ${JSON.stringify(content)}\n\n`;
-  usersConnections[userId].write(messageStr);
+  usersConnections[userId].response.write(messageStr);
 };
 
 module.exports.getAllConnected = () =>
