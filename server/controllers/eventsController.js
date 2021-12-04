@@ -12,6 +12,7 @@ module.exports.sendEventToAll = (senderId, type, content) => {
 };
 
 module.exports.sendEventToUser = (userId, type, content) => {
+  console.log(`Sending ${type} to ${userId}`);
   let messageStr = `event: ${type}\n`;
   messageStr += `data: ${JSON.stringify(content)}\n\n`;
   usersConnections[userId].response.write(messageStr);
@@ -28,6 +29,9 @@ module.exports.eventsHandler = (req, res, next) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Access-Control-Allow-Origin", "*");
+
+  if (connectedUsers.includes(userId))
+    throw { status: 403, message: "already connected" };
 
   usersConnections[userId] = { username, response: res };
   connectedUsers.push(userId);
