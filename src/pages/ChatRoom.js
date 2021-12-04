@@ -79,20 +79,22 @@ function ChatRoom() {
   return (
     <div id="ChatRoom" className="container">
       <div className="connected-users">
-        {connectedUsers.map(({ username, userId }) => (
-          <div className="connected-user" key={userId}>
-            {username}
-          </div>
-        ))}
+        {connectedUsers &&
+          connectedUsers.map(({ username, userId }) => (
+            <div className="connected-user" key={userId}>
+              {username}
+            </div>
+          ))}
       </div>
       <div className="message-list">
-        {messages.map(({ message, from, timestamp }, index) => (
-          <div key={index} className="message">
-            {from && <h2> {from} </h2>}
-            <p>{message}</p>
-            <span>{moment(timestamp).fromNow()}</span>
-          </div>
-        ))}
+        {messages &&
+          messages.map(({ message, from, timestamp }, index) => (
+            <div key={index} className="message">
+              {from && <h2> {from} </h2>}
+              <p>{message}</p>
+              <span>{moment(timestamp).fromNow()}</span>
+            </div>
+          ))}
       </div>
       <div className="messages-input">
         <input

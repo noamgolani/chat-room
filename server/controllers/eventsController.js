@@ -25,6 +25,7 @@ module.exports.getAllConnected = () =>
     userId,
   }));
 
+//TODO make a proper log of the events
 module.exports.eventsHandler = (req, res, next) => {
   const { username, userId } = req.user;
   res.setHeader("Content-Type", "text/event-stream");
