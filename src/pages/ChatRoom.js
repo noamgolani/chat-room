@@ -1,6 +1,5 @@
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import moment from "moment";
 
 import { authContext } from "../AuthContext";
@@ -11,43 +10,35 @@ import {
   USER_LEFT,
 } from "../EventsContext";
 
-import { BASE_URL } from "..";
+import { useAuthAPI } from "../useAPI";
 
 function ChatRoom() {
   const [messages, setMessages] = useState([]);
   const [connectedUsers, setConnectedUsers] = useState([]);
   const [messageValue, setMessageValue] = useState("");
-  const { accessToken, loggedIn } = useContext(authContext);
+  const { loggedIn } = useContext(authContext);
   const { connected, addListener } = useContext(eventsContext);
   const navigate = useNavigate();
+
+  const { get: getAllMessages } = useAuthAPI("/chat/messages");
+  const { get: getAllConnected } = useAuthAPI("/chat/connected");
+  const { post: sendMessage } = useAuthAPI("/chat/message");
 
   // If not logged in redirect to login
   useEffect(() => {
     if (!loggedIn) navigate("/login");
   }, [loggedIn, navigate]);
 
-  // TODO move all 'axios' to to separate hook
   // Fetch all "Old messages"
   useEffect(() => {
     (async () => {
-      const {
-        data: { messages },
-      } = await axios.get(`${BASE_URL}/api/chat/messages`, {
-        headers: {
-          Auth: accessToken,
-        },
-      });
-      const {
-        data: { connected },
-      } = await axios.get(`${BASE_URL}/api/chat/connected`, {
-        headers: {
-          Auth: accessToken,
-        },
-      });
+      const [messagesError, messages] = await getAllMessages();
+      const [connectedError, connected] = await getAllConnected();
+      if (messagesError || connectedError) return;
       setMessages(messages);
       setConnectedUsers(connected);
     })();
-  }, [accessToken]);
+  }, [getAllConnected, getAllMessages]);
 
   // On connection listen to message sent event
   useEffect(() => {
@@ -73,26 +64,17 @@ function ChatRoom() {
     });
   }, [connected, addListener]);
 
-  const sendMessage = useCallback(() => {
+  const onSendClicked = useCallback(() => {
     (async () => {
-      await axios.post(
-        `${BASE_URL}/api/chat/message`,
-        {
-          message: messageValue,
-        },
-        {
-          headers: {
-            Auth: accessToken,
-          },
-        }
-      );
+      const [error, data] = await sendMessage({ message: messageValue });
+      if (error) return console.log(error);
       setMessages((messages) => [
         ...messages,
         { from: "Me", message: messageValue, timestamp: Date.now() }, // TODO change from to username and update timestamp when recieved in server`
       ]);
       setMessageValue("");
     })();
-  }, [messageValue, accessToken]);
+  }, [sendMessage, messageValue]);
 
   return (
     <div id="ChatRoom" className="container">
@@ -121,7 +103,7 @@ function ChatRoom() {
             setMessageValue(value);
           }}
         ></input>
-        <button onClick={sendMessage}>Send</button>
+        <button onClick={onSendClicked}>Send</button>
       </div>
     </div>
   );
