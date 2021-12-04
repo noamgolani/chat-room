@@ -7,6 +7,10 @@ const mongoose = require("mongoose");
 dotenv.config();
 
 const apiRoute = require("./routes/apiRoute");
+const {
+  sendEventToAll,
+  KEEP_ALIVE,
+} = require("./controllers/eventsController");
 
 const app = express();
 
@@ -30,6 +34,14 @@ mongoose
   });
 
 app.use("/api", apiRoute);
+
+const ALIVE_TIMEOUT = 30000;
+
+//Keep alive interval
+setInterval(() => {
+  console.log("---- | keeping alive");
+  sendEventToAll(null, KEEP_ALIVE);
+}, ALIVE_TIMEOUT);
 
 // Error handler
 app.use((err, req, res, next) => {

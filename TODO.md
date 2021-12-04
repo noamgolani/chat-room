@@ -39,9 +39,9 @@
 
 - [x] Use jwt To assign a token to a user.
 - [x] Create auth middleware and check the token before you allow the user to enter the chat room
-- [ ] Use private route to redirect a user without a valid token.
+- [x] Use private route to redirect a user without a valid token.
 
-- [ ] When a user enters a chat room he will get the message history of the room.
+- [x] When a user enters a chat room he will get the message history of the room.
 - [ ] Clicking on a username sends a message only to it specifically
 - [ ] Gray V when the message successfully reached the server. 2 gray V when the message reached all participants.
 - [ ] create different rooms and option to be admin of a room.
