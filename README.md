@@ -8,7 +8,7 @@
 
 ### Chat
 
-- `GET api/chat/message`
+- `GET api/chat/messages`
 
 ```
     request

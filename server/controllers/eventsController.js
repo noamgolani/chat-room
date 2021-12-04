@@ -17,22 +17,30 @@ module.exports.sendEventToUser = (userId, type, content) => {
   usersConnections[userId].write(messageStr);
 };
 
+module.exports.getAllConnected = () =>
+  connectedUsers.map((userId) => ({
+    username: usersConnections[userId].username,
+    userId,
+  }));
+
 module.exports.eventsHandler = (req, res, next) => {
   const { username, userId } = req.user;
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Access-Control-Allow-Origin", "*");
 
-  console.log(`User: ${username} started listening to Events`);
-
   usersConnections[userId] = { username, response: res };
   connectedUsers.push(userId);
 
   res.write("data: connected\n\n");
 
+  this.sendEventToAll(userId, this.USER_JOINED, { username, userId });
+  console.log(`---- User: ${username} started listening to Events`);
+
   req.on("close", () => {
     delete usersConnections[userId];
     connectedUsers = connectedUsers.filter((id) => id !== userId);
-    console.log(`User: ${username} stoped listening to Events`);
+    this.sendEventToAll(userId, this.USER_LEFT, { username, userId });
+    console.log(`---- User: ${username} stoped listening to Events`);
   });
 };
