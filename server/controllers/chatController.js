@@ -18,7 +18,7 @@ module.exports.sendMessage = async (req, res, next) => {
 
 module.exports.getAllMessages = async (req, res, next) => {
   try {
-    res.send(messages);
+    res.send({ messages });
   } catch (err) {
     next(err);
   }

@@ -1,8 +1,44 @@
 # Chat room app
 
-### API Routes
+## API Routes
 
-#### Auth
+### Events
+
+- `EventSource api/events` <- must provide header: `auth: [accessToken]`
+
+### Chat
+
+- `GET api/chat/message`
+
+```
+    request
+    headers: {
+        auth: accessToken
+    }
+
+    response
+    body: {
+        messages: [{
+        }]
+    }
+```
+
+- `POST api/chat/message`
+
+```
+    request
+    headers: {
+        auth: accessToken
+    }
+    body: {
+        message: string
+    }
+
+    response
+    body: "Message Sent"
+```
+
+### Auth
 
 - `POST api/auth/login`
 
