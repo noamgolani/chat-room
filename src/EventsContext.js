@@ -13,6 +13,10 @@ export const EventsProvider = ({ children }) => {
   const { loggedIn, accessToken } = useContext(authContext);
 
   useEffect(() => {
+    if (!loggedIn && eventSource) {
+      eventSource.close();
+      setEventSource(null);
+    }
     if (!eventSource && loggedIn) {
       const events = new EventSourcePolyfill(`${BASE_URL}/api/events`, {
         headers: {
@@ -24,7 +28,10 @@ export const EventsProvider = ({ children }) => {
         setEventSource(events);
       };
 
-      events.onerror = console.log;
+      events.onerror = () => {
+        eventSource.close();
+        setEventSource(null);
+      };
     }
   }, [eventSource, loggedIn, accessToken]);
 

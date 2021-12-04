@@ -11,7 +11,6 @@ module.exports.auth = async (req, res, next) => {
     req.user = { username, userId };
     next();
   } catch (error) {
-    //TODO add check if jwt error
     next(error);
   }
 };
