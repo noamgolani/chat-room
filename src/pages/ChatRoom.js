@@ -44,6 +44,7 @@ function ChatRoom() {
   useEffect(() => {
     if (!connected) return;
     addListener(MESSAGE_SENT, (data) => {
+      console.log(data);
       setMessages((messages) => [...messages, data]);
     });
     addListener(USER_LEFT, (data) => {

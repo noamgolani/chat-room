@@ -3,7 +3,7 @@ import { EventSourcePolyfill } from "event-source-polyfill";
 
 import { authContext } from "./AuthContext";
 
-import { BASE_URL } from "./index";
+import { BASE_URL } from "./useAPI";
 
 export const eventsContext = React.createContext({});
 
@@ -19,7 +19,7 @@ export const EventsProvider = ({ children }) => {
     }
 
     if (!eventSource && loggedIn) {
-      const events = new EventSourcePolyfill(`${BASE_URL}/api/events`, {
+      const events = new EventSourcePolyfill(`${BASE_URL}/events`, {
         headers: {
           Auth: accessToken,
         },
