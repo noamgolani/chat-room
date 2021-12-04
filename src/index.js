@@ -30,5 +30,3 @@ function App() {
 }
 
 ReactDOM.render(<App />, document.getElementById("root"));
-
-export const BASE_URL = "http://localhost:8080";

@@ -1,8 +1,7 @@
-import axios from "axios";
 import React, { useCallback, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { BASE_URL } from "./index";
+import { useAPI, useAuthAPI } from "./useAPI";
 
 export const authContext = React.createContext({});
 
@@ -15,79 +14,64 @@ export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(
     localStorage.getItem("access")
   );
-
-  const askForNewToken = useCallback(async (refreshToken) => {
-    return await axios.post(`${BASE_URL}/api/auth/token`, {
-      token: refreshToken,
-    });
-  }, []);
+  const { post: askForNewToken } = useAPI("/auth/token");
+  const { post: loginReq } = useAPI("/auth/login");
+  const { post: registerReq } = useAPI("/auth/register");
+  const { get: logoutReq } = useAuthAPI("/auth/logout");
 
   useEffect(() => {
     (async () => {
       if (refreshToken && refreshToken !== "undefined" && !loggedIn) {
-        try {
-          const { data } = await askForNewToken(refreshToken);
-          setAccessToken(data.accessToken);
-          localStorage.setItem("access", data.accessToken);
-          setUsername(data.username);
-          setLoggedIn(true);
-        } catch (error) {
-          console.log(error);
+        const [error, data] = await askForNewToken(refreshToken);
+        if (error) {
           setRefreshToken(null);
+          return console.log(error);
         }
+        setAccessToken(data.accessToken);
+        localStorage.setItem("access", data.accessToken);
+        setUsername(data.username);
+        setLoggedIn(true);
       }
     })();
   }, [refreshToken, askForNewToken, loggedIn]);
 
-  const login = useCallback(async ({ username, password }) => {
-    try {
-      const { data } = await axios.post(`${BASE_URL}/api/auth/login`, {
+  const login = useCallback(
+    async ({ username, password }) => {
+      const [error, data] = await loginReq({
         username,
         password,
       });
+      if (error) return console.log(error);
       setRefreshToken(data.refreshToken);
       setAccessToken(data.accessToken);
       localStorage.setItem("refresh", data.refreshToken);
       localStorage.setItem("access", data.accessToken);
       setUsername(username);
       setLoggedIn(true);
-    } catch (error) {
-      if (error.isAxiosError) console.log(error.response.data.error);
-      else console.log(error);
-    }
-  }, []);
+    },
+    [loginReq]
+  );
 
-  const register = useCallback(async ({ username, password, email }) => {
-    try {
-      await axios.post(`${BASE_URL}/api/auth/register`, {
+  const register = useCallback(
+    async ({ username, password, email }) => {
+      const [error, data] = await registerReq({
         username,
         password,
         email,
       });
-    } catch (error) {
-      if (error.isAxiosError) throw error.response.data.error;
-      else {
-        console.log(error);
-        throw "Something went bad";
-      }
-    }
-  }, []);
+      if (error) console.log(error);
+    },
+    [registerReq]
+  );
 
   const logout = useCallback(async () => {
-    await axios.post(
-      `${BASE_URL}/api/auth/logout`,
-      {},
-      {
-        headers: {
-          Auth: accessToken,
-        },
-      }
-    );
+    const [error, data] = await logoutReq();
+    if (error) console.log(error);
     setUsername(null);
     setLoggedIn(false);
     localStorage.removeItem("refresh");
     localStorage.removeItem("access");
-  }, [accessToken]);
+  }, [logoutReq]);
 
   return (
     <authContext.Provider
