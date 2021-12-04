@@ -2,32 +2,37 @@ module.exports.MESSAGE_SENT = "message_sent";
 module.exports.USER_JOINED = "user_joined";
 module.exports.USER_LEFT = "user_left";
 
-let usersConnections = [];
+let usersConnections = {};
+let connectedUsers = [];
 
-module.exports.sendEventToAll = (type, content) => {
-  usersConnections.forEach(({ username, response }) => {
-    let messageStr = `event: ${type}\n`;
-    messageStr += `data: ${JSON.stringify(content)}\n\n`;
-    response.write(messageStr);
+module.exports.sendEventToAll = (senderId, type, content) => {
+  connectedUsers.forEach((userId) => {
+    if (senderId !== userId) this.sendEventToUser(userId, type, content);
   });
 };
 
+module.exports.sendEventToUser = (userId, type, content) => {
+  let messageStr = `event: ${type}\n`;
+  messageStr += `data: ${JSON.stringify(content)}\n\n`;
+  usersConnections[userId].write(messageStr);
+};
+
 module.exports.eventsHandler = (req, res, next) => {
-  const { username } = req.user;
+  const { username, userId } = req.user;
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Access-Control-Allow-Origin", "*");
 
   console.log(`User: ${username} started listening to Events`);
 
-  usersConnections.push({ username, response: res });
+  usersConnections[userId] = { username, response: res };
+  connectedUsers.push(userId);
 
   res.write("data: connected\n\n");
 
   req.on("close", () => {
-    usersConnections = usersConnections.filter(
-      (user) => user.username !== username
-    );
+    delete usersConnections[userId];
+    connectedUsers = connectedUsers.filter((id) => id !== userId);
     console.log(`User: ${username} stoped listening to Events`);
   });
 };
