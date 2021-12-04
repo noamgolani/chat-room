@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       if (refreshToken && refreshToken !== "undefined" && !loggedIn) {
-        const [error, data] = await askForNewToken(refreshToken);
+        const [error, data] = await askForNewToken({ token: refreshToken });
         if (error) {
           setRefreshToken(null);
           return console.log(error);

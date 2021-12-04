@@ -5,22 +5,25 @@ import { authContext } from "./AuthContext";
 export function useAuthAPI(route) {
   const { accessToken } = useContext(authContext);
 
-  const requester = axios.create({
-    baseURL: BASE_URL,
-    headers: { auth: accessToken },
-  });
-
   const get = useCallback(async () => {
+    const requester = axios.create({
+      baseURL: BASE_URL,
+      headers: { auth: accessToken },
+    });
     try {
       const response = await requester.get(route);
       return [null, response.data];
     } catch (error) {
       return [error, null];
     }
-  }, [route, requester]);
+  }, [route, accessToken]);
 
   const post = useCallback(
     async (body) => {
+      const requester = axios.create({
+        baseURL: BASE_URL,
+        headers: { auth: accessToken },
+      });
       try {
         const response = await requester.post(route, body);
         return [null, response.data];
@@ -28,7 +31,7 @@ export function useAuthAPI(route) {
         return [error, null];
       }
     },
-    [requester, route]
+    [accessToken, route]
   );
 
   return {
@@ -38,27 +41,32 @@ export function useAuthAPI(route) {
 }
 
 export function useAPI(route) {
-  const requester = axios.create({
-    baseURL: BASE_URL,
-  });
-
-  const get = async () => {
+  const get = useCallback(async () => {
+    const requester = axios.create({
+      baseURL: BASE_URL,
+    });
     try {
       const response = await requester.get(route);
       return [null, response.data];
     } catch (error) {
       return [error, null];
     }
-  };
+  }, [route]);
 
-  const post = async (body) => {
-    try {
-      const response = await requester.post(route, body);
-      return [null, response.data];
-    } catch (error) {
-      return [error, null];
-    }
-  };
+  const post = useCallback(
+    async (body) => {
+      const requester = axios.create({
+        baseURL: BASE_URL,
+      });
+      try {
+        const response = await requester.post(route, body);
+        return [null, response.data];
+      } catch (error) {
+        return [error, null];
+      }
+    },
+    [route]
+  );
 
   return {
     get,

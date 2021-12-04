@@ -32,8 +32,8 @@ function ChatRoom() {
   // Fetch all "Old messages"
   useEffect(() => {
     (async () => {
-      const [messagesError, messages] = await getAllMessages();
-      const [connectedError, connected] = await getAllConnected();
+      const [messagesError, { messages }] = await getAllMessages();
+      const [connectedError, { connected }] = await getAllConnected();
       if (messagesError || connectedError) return;
       setMessages(messages);
       setConnectedUsers(connected);
@@ -44,7 +44,6 @@ function ChatRoom() {
   useEffect(() => {
     if (!connected) return;
     addListener(MESSAGE_SENT, (data) => {
-      console.log(data);
       setMessages((messages) => [...messages, data]);
     });
     addListener(USER_LEFT, (data) => {

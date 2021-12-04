@@ -38,6 +38,11 @@ app.use((err, req, res, next) => {
       status: 403,
       message: "Not auth",
     };
+  } else if (err.name === "TokenExpiredError") {
+    err = {
+      status: 410,
+      message: "Expired token",
+    };
   }
   if (err.status) {
     res.status(err.status);
