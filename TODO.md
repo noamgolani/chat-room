@@ -1,5 +1,16 @@
 ## Chat room task
 
+## Actual TODO`s
+
+- [ ] Add connected/disconnected events:
+  - [ ] Add `user_connected` event and send to all connected users.
+  - [ ] On an `user_connected` the client will add it to the connected list
+  - [ ] Add `user_disconnected` event and send to all connected users .
+  - [ ] On an `user_disconnected` the client will remove it from the connected list
+- [ ] Add 2 "static" routes:
+  - [ ] Connected -> all connected users
+  - [ ] Messages -> all messages history
+
 ### Requirements:
 
 - [x] Create a login screen and a chat screen
@@ -34,4 +45,3 @@
 - [ ] Clicking on a username sends a message only to it specifically
 - [ ] Gray V when the message successfully reached the server. 2 gray V when the message reached all participants.
 - [ ] create different rooms and option to be admin of a room.
-
