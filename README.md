@@ -1,5 +1,7 @@
 # Chat room app
 
+an example of using SSE with authentication and EventSource with react
+
 ## API Routes
 
 ### Events
